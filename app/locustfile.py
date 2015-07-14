@@ -7,6 +7,7 @@ class ServiceBehavior(TaskSet):
 
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """
+        # uncomment this if you want to load performance data (if it's not loaded yet)
         # self._load_testing_stubs()
         pass
 
@@ -18,12 +19,17 @@ class ServiceBehavior(TaskSet):
         """
         self.client.get("/stubo/api/exec/cmds?cmdfile=/static/cmds/perf/perf_setup.commands")
 
+    # You can add more testing URLs here
     # @task(2)
     # def index(self):
     #     self.client.get("/")
 
     @task(1)
     def get_response(self):
+        """
+
+        Gets response from random scenario
+        """
         self.client.post("/stubo/api/get/response?session=playback_%s" % random.randint(1, 100), self.matcher)
 
 
