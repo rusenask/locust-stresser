@@ -21,6 +21,16 @@ class ServiceBehavior(TaskSet):
         """
         self.client.get('/stubo/api/v2/scenarios')
 
+def CleanUp( **kw):
+    """
+    Deleting scenarios after tests
+    :param kw:
+    """
+    for sn_no in xrange(100):
+        name = 'scenario_name_locust_%s' % sn_no
+        requests.delete("%s/stubo/api/v2/scenarios/objects/%s" % (TARGET, name))
+
+events.quitting += CleanUp
 
 class WebsiteUser(HttpLocust):
     task_set = ServiceBehavior
