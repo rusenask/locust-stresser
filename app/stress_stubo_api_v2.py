@@ -16,14 +16,21 @@ class ServiceBehavior(TaskSet):
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """
         scenario_inserted = False
+
         while not scenario_inserted:
             sn_no = randint(0, 100)
             payload = {'scenario': 'scenario_name_locust_%s' % sn_no }
             headers = {'content-type': 'application/json'}
-            response = self.client.put("/stubo/api/v2/scenarios", data=json.dumps(payload), headers=headers)
-            if response.status_code == 201:
-                scenario_inserted = True
-                self.scenario_name = payload['scenario']
+            with self.client.put("/stubo/api/v2/scenarios",
+                                 data=json.dumps(payload),
+                                 headers=headers,
+                                 catch_response=True) as response:
+                if response.status_code == 201:
+                    scenario_inserted = True
+                    self.scenario_name = payload['scenario']
+                # duplicate scenario - continue trying to create
+                if response.status_code == 422:
+                    response.success()
 
     @task(2)
     def get_scenario_details(self):
