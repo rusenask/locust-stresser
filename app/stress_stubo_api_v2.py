@@ -1,4 +1,13 @@
 from locust import HttpLocust, TaskSet, task
+from locust import events
+import json
+import requests
+from random import randint
+
+HOST = "http://localhost"
+PORT = "8001"
+
+TARGET = "%s:%s" % (HOST, PORT)
 
 class ServiceBehavior(TaskSet):
 
@@ -32,7 +41,8 @@ def CleanUp( **kw):
 
 events.quitting += CleanUp
 
-class WebsiteUser(HttpLocust):
+class APIUser(HttpLocust):
     task_set = ServiceBehavior
-    min_wait = 5500000
-    max_wait = 10000000
+    host = TARGET
+    min_wait = 50
+    max_wait = 80
