@@ -11,16 +11,23 @@ TARGET = "%s:%s" % (HOST, PORT)
 
 class ServiceBehavior(TaskSet):
 
+    scenario_name = None
+
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """
-        # creating some scenarios
-        for sn_no in xrange(100):
-            self.client.put("/stubo/api/v2/scenarios", data={'scenario': 'scenario_name_locust_%s' % sn_no})
+        scenario_inserted = False
+        while not scenario_inserted:
+            sn_no = randint(0, 100)
+            payload = {'scenario': 'scenario_name_locust_%s' % sn_no }
+            headers = {'content-type': 'application/json'}
+            response = self.client.put("/stubo/api/v2/scenarios", data=json.dumps(payload), headers=headers)
+            if response.status_code == 201:
+                scenario_inserted = True
+                self.scenario_name = payload['scenario']
 
-    # You can add more testing URLs here
-    # @task(2)
-    # def index(self):
-    #     self.client.get("/")
+    @task(2)
+    def get_scenario_details(self):
+        self.client.get("/stubo/api/v2/scenarios/objects/%s" % self.scenario_name)
 
     @task(1)
     def get_response_scenario_list(self):
